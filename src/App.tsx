@@ -521,6 +521,10 @@ const LoginView = () => {
   const [loading, setLoading] = useState(false);
 
   const handleGoogleLogin = async () => {
+    if (!auth) {
+      setError('Firebase configuration is missing or invalid');
+      return;
+    }
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
@@ -538,6 +542,10 @@ const LoginView = () => {
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!auth) {
+      setError('Firebase configuration is missing or invalid');
+      return;
+    }
     setLoading(true);
     setError('');
     try {
@@ -1011,6 +1019,11 @@ export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
+    if (!auth) {
+      setLoadingAuth(false);
+      setActiveTab('login');
+      return;
+    }
     const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setLoadingAuth(false);
@@ -1026,6 +1039,11 @@ export default function App() {
   }, []); // Remove activeTab from dependencies to avoid re-subscribing on every tab switch
 
   const handleSignOut = async () => {
+    if (!auth) {
+      setActiveTab('login');
+      setUser(null);
+      return;
+    }
     try {
       await signOut(auth);
       setActiveTab('login');

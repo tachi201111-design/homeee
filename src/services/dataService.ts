@@ -43,12 +43,12 @@ function handleFirestoreError(error: unknown, operationType: OperationType, path
   const errInfo: FirestoreErrorInfo = {
     error: error instanceof Error ? error.message : String(error),
     authInfo: {
-      userId: auth.currentUser?.uid,
-      email: auth.currentUser?.email,
-      emailVerified: auth.currentUser?.emailVerified,
-      isAnonymous: auth.currentUser?.isAnonymous,
-      tenantId: auth.currentUser?.tenantId,
-      providerInfo: auth.currentUser?.providerData?.map(provider => ({
+      userId: auth?.currentUser?.uid,
+      email: auth?.currentUser?.email,
+      emailVerified: auth?.currentUser?.emailVerified,
+      isAnonymous: auth?.currentUser?.isAnonymous,
+      tenantId: auth?.currentUser?.tenantId,
+      providerInfo: auth?.currentUser?.providerData?.map(provider => ({
         providerId: provider.providerId,
         email: provider.email,
       })) || []
@@ -63,6 +63,7 @@ function handleFirestoreError(error: unknown, operationType: OperationType, path
 export const dataService = {
   // Users
   async createUserProfile(user: { uid: string; email: string; displayName?: string; photoURL?: string }) {
+    if (!db) return;
     const path = `users/${user.uid}`;
     try {
       const userRef = doc(db, 'users', user.uid);
@@ -81,7 +82,7 @@ export const dataService = {
 
   // Projects
   async getProjects() {
-    if (!auth.currentUser) return [];
+    if (!auth || !auth.currentUser || !db) return [];
     const path = 'projects';
     try {
       const q = query(collection(db, path), where('ownerId', '==', auth.currentUser.uid));
@@ -93,7 +94,7 @@ export const dataService = {
   },
 
   async createProject(project: { title: string; description?: string; status: string; img?: string; data?: Record<string, unknown> }) {
-    if (!auth.currentUser) return;
+    if (!auth || !auth.currentUser || !db) return;
     const path = 'projects';
     try {
       const docRef = await addDoc(collection(db, path), {
@@ -109,6 +110,7 @@ export const dataService = {
   },
 
   async updateProject(id: string, updates: Partial<{ title: string; description: string; status: string; img: string; data: Record<string, unknown> }>) {
+    if (!db) return;
     const path = `projects/${id}`;
     try {
       const ref = doc(db, 'projects', id);
@@ -122,6 +124,7 @@ export const dataService = {
   },
 
   async deleteProject(id: string) {
+    if (!db) return;
     const path = `projects/${id}`;
     try {
       await deleteDoc(doc(db, 'projects', id));
