@@ -1,6 +1,6 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
+import { initializeApp, FirebaseApp } from 'firebase/app';
+import { getAuth, Auth } from 'firebase/auth';
+import { getFirestore, doc, getDocFromServer, Firestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
@@ -14,9 +14,9 @@ const firebaseConfig = {
 
 const isConfigValid = !!firebaseConfig.apiKey && firebaseConfig.apiKey !== "";
 
-let app;
-let db: any;
-let auth: any;
+let app: FirebaseApp | undefined;
+let db: Firestore | undefined;
+let auth: Auth | undefined;
 
 if (isConfigValid) {
   app = initializeApp(firebaseConfig);
